@@ -22,31 +22,37 @@ app.get("/", async(req, res)=> {
 const todos=[
     {
         id: 1,
-        taskName: "Name",
-        taskDesc: "asdadfadsf",
+        taskName: "Breakfask",
+        taskDesc: "i have to eat puri today",
         deadline: new Date(new Date()+10),
         priority: 1,
         dependencies: [
             2, 3, 4
         ],
-        subTasks:[
+        subtasks:[
         ]
     }, 
     {
         id: 2,
-        name: "Name",
+        taskName: "Name",
+        taskDesc: "adfasdf",
         deadline: new Date(new Date()+10),
         dependencies: [
         ],
         priority: 2,
+        subtasks:[
+        ]
     },
     {
         id: 3,
-        name: "Name",
+        taskName: "Name",
+        taskDesc: "asdf",
         deadline: new Date(new Date()+10),
         dependencies: [
         ],
         priority: 3,
+        subtasks:[
+        ]
     }
 ]
 
@@ -57,6 +63,7 @@ app.get("/todos", async(req, res)=> {
 app.post("/todos", async(req, res)=> {
     try {
         const {todo}=req.body;
+        console.log(todo)
         todos.push(todo);
         return res.status(201).json({message: "Todo added succesfully."});
     } catch (error) {
