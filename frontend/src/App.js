@@ -3,7 +3,7 @@ import "./App.css";
 import AddTodo from "./Components/AddTodo";
 import NoTasksView from "./Components/NoTasksView";
 import TasksView from "./Components/TasksView";
-import {getTodoList} from "./Store/ApiCalls";
+import { getAllTasks } from "./Store/ApiCalls";
 
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   useEffect(()=> {
 
     const fetchTasks=async()=> {
-      const data=await getTodoList();
+      const data=await getAllTasks();
       setTodoList(data)
     }
     fetchTasks();
@@ -26,7 +26,7 @@ function App() {
         todoList ? 
           (todoList.length===0 ? <NoTasksView/> : <TasksView tasks={todoList}/>) : <p>asdf</p>
       }
-      <AddTodo/>
+      <AddTodo tasks={todoList}/>
     </div>
   );
 }

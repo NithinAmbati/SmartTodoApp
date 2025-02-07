@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { addNewTask } from '../Store/ApiCalls';
+import Select from 'react-select';
 
 const AddTodo = ({ tasks }) => {
   const [taskName, setTaskName] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
   const [subtasks, setSubtasks] = useState(['']);
   const [deadline, setDeadline] = useState('');
-
+  const [priority, setPriority] = useState('1');
   const [dependencies, setDependencies] = useState([]);
 
   const addSubtask = () => {
@@ -18,21 +19,15 @@ const AddTodo = ({ tasks }) => {
     setSubtasks(updatedSubtasks);
   };
 
-  const handleDependencyChange = (taskId) => {
-    setDependencies(prev => 
-      prev.includes(taskId) ? prev.filter(id => id !== taskId) : [...prev, taskId]
-    );
-  };
-
-  const handleSubmit = async() => {
-    const newTask = { taskName, subtasks, deadline, dependencies };
+  const handleSubmit = async () => {
+    const newTask = { taskName, taskDesc, subtasks, deadline, priority, dependencies };
     console.log('Task Created:', newTask);
     await addNewTask(newTask);
   };
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-xl font-bold mb-4">Add Todo Here</h1>
+      <h1 className="text-xl font-bold mb-4">Schedule your Task Here</h1>
       <input 
         type="text" 
         className="w-full border p-2 rounded mb-3" 
@@ -40,7 +35,7 @@ const AddTodo = ({ tasks }) => {
         value={taskName} 
         onChange={(e) => setTaskName(e.target.value)}
       />
-       <input 
+      <input 
         type="text" 
         className="w-full border p-2 rounded mb-3" 
         placeholder="Enter Task description" 
@@ -53,6 +48,15 @@ const AddTodo = ({ tasks }) => {
         value={deadline} 
         onChange={(e) => setDeadline(e.target.value)}
       />
+      <select 
+        className="w-full border p-2 rounded mb-3" 
+        value={priority} 
+        onChange={(e) => setPriority(e.target.value)}
+      >
+        <option value="1">HIGH</option>
+        <option value="2">MEDIUM</option>
+        <option value="3">LOW</option>
+      </select>
       <div className="mb-3">
         <h2 className="font-medium">Subtasks</h2>
         {subtasks.map((subtask, index) => (
@@ -74,22 +78,14 @@ const AddTodo = ({ tasks }) => {
       </div>
       <div className="mb-3">
         <h2 className="font-medium">Dependencies</h2>
-        {tasks && tasks.length > 0 ? (
-          <div>
-            {tasks.map(task => (
-              <label key={task.id} className="block">
-                <input 
-                  type="checkbox" 
-                  checked={dependencies.includes(task.id)} 
-                  onChange={() => handleDependencyChange(task.id)}
-                />
-                {task.taskName}
-              </label>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500">No existing tasks available</p>
-        )}
+        <Select 
+          isMulti 
+          options={tasks.map(task => ({ value: task.id, label: task.taskName }))} 
+          className="w-full border rounded mb-3" 
+          placeholder="Select dependencies..." 
+          menuPortalTarget={document.body} 
+          onChange={(selectedOptions) => setDependencies(selectedOptions.map(option => option.value))}
+        />
       </div>
       <button 
         className="w-full bg-blue-500 text-white rounded-md p-3 hover:bg-blue-600" 
