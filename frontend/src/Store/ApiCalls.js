@@ -10,14 +10,10 @@ const getAllTasks=async()=> {
     };
     const url=`${mainUrl}/tasks`;
     const response=await fetch(url, options);
-    if(response.ok) {
-        const {data, message}=await response.json();
-        console.log(message);
-        return data;
-    }
-    const {message}=await response.json();
+    const {data, message}=await response.json();
     console.log(message);
-    return [];
+    if(message==="Graph has a cycle, topological sort not possible.") alert(message)
+    return data;
 }
 
 

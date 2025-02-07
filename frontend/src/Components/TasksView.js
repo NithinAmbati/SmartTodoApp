@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import Select from 'react-select';
 import { deleteTask, editTask } from '../Store/ApiCalls';
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import MUISelect from "@mui/material/Select";
+import Autocomplete from "@mui/material/Autocomplete";
 
 const TasksView = ({ tasks }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -45,6 +48,11 @@ const TasksView = ({ tasks }) => {
   const addSubtask = () => {
     setSubtasks([...subtasks, '']);
   };
+
+  const handleDependencyChange = (event, value) => {
+    setDependencies(value);
+  };
+
 
 
   const updateTask=async(task)=> {
@@ -109,8 +117,15 @@ const TasksView = ({ tasks }) => {
             </div>
             <div className="my-2">
               <h2 className="font-medium">Dependencies</h2>
-              <Select isMulti options={tasks.map(task => ({ value: task.id, label: task.taskName }))} className="w-full border rounded mb-3" placeholder="Select dependencies..." onChange={(selectedOptions) => setDependencies(selectedOptions.map(option => option.value))} />
-            </div>
+              <Autocomplete
+                            multiple
+                            options={tasks?.filter(task => task && task.taskName) || []}
+                            getOptionLabel={(task) => task?.taskName || ""}
+                            value={dependencies}
+                            onChange={handleDependencyChange}
+                            renderInput={(params) => <TextField {...params} label="Select Dependencies" fullWidth />}
+                          />            
+                  </div>
             <div className="flex justify-end space-x-2 mt-3">
               <button onClick={() => setIsEditModalOpen(false)} className="px-3 py-1 bg-gray-500 text-white rounded">Cancel</button>
               <button onClick={() => { updateTask({id: selectedTask._id, taskName, taskDesc, subtasks, deadline, priority, dependencies }); setIsEditModalOpen(false); }} className="px-3 py-1 bg-green-500 text-white rounded">Save</button>

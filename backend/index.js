@@ -2,6 +2,7 @@ const express=require("express");
 const cors=require('cors');
 const { default: mongoose } = require("mongoose");
 const Tasks = require("./models/task");
+const { topoSort } = require("./controllers/topoSort");
 
 const app=express();
 app.use(cors());
@@ -32,7 +33,10 @@ app.get("/", async(req, res)=> {
 app.get("/tasks", async (req, res) => {
     try {
         const tasks = await Tasks.find();
-        return res.status(200).json({ message: "Data retrieved successfully.", data: tasks });
+         const {sortedTasks, message}=topoSort(tasks);
+         console.log(sortedTasks);
+        console.log(message)
+        return res.status(200).json({ message, data: sortedTasks });
     } catch (error) {
         return res.status(500).json({ message: "Error fetching tasks", error: error.message });
     }
@@ -42,7 +46,11 @@ app.post("/tasks", async (req, res) => {
     try {
         const {task}=req.body;
         const { taskName, taskDesc, subtasks, dependencies, priority, deadline } = task;
-        const newTask = new Tasks({ taskName, taskDesc, subtasks, dependencies, priority, deadline });
+        
+        let updatedDependencies=[];
+        for(let task of dependencies) updatedDependencies.push(task._id);
+
+        const newTask = new Tasks({ taskName, taskDesc, subtasks, dependencies: updatedDependencies, priority, deadline });
         await newTask.save();
         return res.status(201).json({ message: "Todo added successfully.", data: newTask });
     } catch (error) {

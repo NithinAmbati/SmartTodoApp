@@ -1,94 +1,122 @@
-import React, { useState } from 'react';
-import { addNewTask } from '../Store/ApiCalls';
-import Select from 'react-select';
+import React, { useState } from "react";
+import { addNewTask } from "../Store/ApiCalls";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import MUISelect from "@mui/material/Select";
+import Autocomplete from "@mui/material/Autocomplete";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddTodo = ({ tasks }) => {
-  const [taskName, setTaskName] = useState('');
-  const [taskDesc, setTaskDesc] = useState('');
-  const [subtasks, setSubtasks] = useState(['']);
-  const [deadline, setDeadline] = useState('');
-  const [priority, setPriority] = useState('1');
+  const [taskName, setTaskName] = useState("");
+  const [taskDesc, setTaskDesc] = useState("");
+  const [subtasks, setSubtasks] = useState([""]);
+  const [deadline, setDeadline] = useState("");
+  const [priority, setPriority] = useState("1");
   const [dependencies, setDependencies] = useState([]);
 
   const addSubtask = () => {
-    setSubtasks([...subtasks, '']);
+    setSubtasks([...subtasks, ""]);
   };
 
   const handleSubtaskChange = (index, value) => {
-    const updatedSubtasks = subtasks.map((subtask, i) => i === index ? value : subtask);
+    const updatedSubtasks = subtasks.map((subtask, i) =>
+      i === index ? value : subtask
+    );
     setSubtasks(updatedSubtasks);
   };
 
+  const handleDependencyChange = (event, value) => {
+    setDependencies(value); 
+};
+
+
   const handleSubmit = async () => {
+
+    console.log(dependencies)
+    if (!taskName || !deadline) {
+      toast.error("Task Name and Deadline are required!");
+      return;
+    }
     const newTask = { taskName, taskDesc, subtasks, deadline, priority, dependencies };
-    console.log('Task Created:', newTask);
+    console.log("Task Created:", newTask);
     await addNewTask(newTask);
   };
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <ToastContainer />
       <h1 className="text-xl font-bold mb-4">Schedule your Task Here</h1>
-      <input 
-        type="text" 
-        className="w-full border p-2 rounded mb-3" 
-        placeholder="Enter Task" 
-        value={taskName} 
+
+      <TextField
+        type="text"
+        className="w-full mb-3"
+        label="Enter Task"
+        value={taskName}
         onChange={(e) => setTaskName(e.target.value)}
+        fullWidth
       />
-      <input 
-        type="text" 
-        className="w-full border p-2 rounded mb-3" 
-        placeholder="Enter Task description" 
-        value={taskDesc} 
+      <TextField
+        type="text"
+        className="w-full mb-3"
+        label="Enter Task Description"
+        value={taskDesc}
         onChange={(e) => setTaskDesc(e.target.value)}
+        fullWidth
       />
-      <input 
-        type="date" 
-        className="w-full border p-2 rounded mb-3"
-        value={deadline} 
+      <TextField
+        type="date"
+        className="w-full mb-3"
+        value={deadline}
         onChange={(e) => setDeadline(e.target.value)}
+        fullWidth
       />
-      <select 
-        className="w-full border p-2 rounded mb-3" 
-        value={priority} 
+      <MUISelect
+        className="w-full mb-3"
+        value={priority}
         onChange={(e) => setPriority(e.target.value)}
+        fullWidth
       >
-        <option value="1">HIGH</option>
-        <option value="2">MEDIUM</option>
-        <option value="3">LOW</option>
-      </select>
+        <MenuItem value="1">HIGH</MenuItem>
+        <MenuItem value="2">MEDIUM</MenuItem>
+        <MenuItem value="3">LOW</MenuItem>
+      </MUISelect>
+
       <div className="mb-3">
         <h2 className="font-medium">Subtasks</h2>
         {subtasks.map((subtask, index) => (
-          <input
+          <TextField
             key={index}
             type="text"
-            className="w-full border p-2 rounded my-1"
-            placeholder={`Subtask ${index + 1}`}
+            className="w-full my-1"
+            label={`Subtask ${index + 1}`}
             value={subtask}
             onChange={(e) => handleSubtaskChange(index, e.target.value)}
+            fullWidth
           />
         ))}
-        <button 
-          className="mt-2 bg-green-500 text-white rounded px-3 py-1 hover:bg-green-600" 
+        <button
+          className="mt-2 bg-green-500 text-white rounded px-3 py-1 hover:bg-green-600"
           onClick={addSubtask}
         >
           + Add Subtask
         </button>
       </div>
+
       <div className="mb-3">
         <h2 className="font-medium">Dependencies</h2>
-        <Select 
-          isMulti 
-          options={tasks.map(task => ({ value: task.id, label: task.taskName }))} 
-          className="w-full border rounded mb-3" 
-          placeholder="Select dependencies..." 
-          menuPortalTarget={document.body} 
-          onChange={(selectedOptions) => setDependencies(selectedOptions.map(option => option.value))}
+        <Autocomplete
+          multiple
+          options={tasks?.filter(task => task && task.taskName) || []} 
+          getOptionLabel={(task) => task?.taskName || ""} 
+          value={dependencies}
+          onChange={handleDependencyChange}
+          renderInput={(params) => <TextField {...params} label="Select Dependencies" />}
         />
       </div>
-      <button 
-        className="w-full bg-blue-500 text-white rounded-md p-3 hover:bg-blue-600" 
+
+      <button
+        className="w-full bg-blue-500 text-white rounded-md p-3 hover:bg-blue-600 mt-4"
         onClick={handleSubmit}
       >
         Create Task

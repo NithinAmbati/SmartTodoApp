@@ -47,9 +47,9 @@ function topologicalSort(tasks) {
 const topoSort=(tasks)=> {
     try {
         const sortedTasks = topologicalSort(tasks);
-        console.log("Sorted Tasks:", sortedTasks.map(task => task.taskName));
+        return {sortedTasks, message: "Data retreived succesfully"}
     } catch (error) {
-        console.error(error.message);
+        return {sortedTasks: [], message: error.message}
     }
 }
 
